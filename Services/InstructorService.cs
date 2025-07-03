@@ -26,13 +26,31 @@ public class InstructorService
         return instructor;
     }
 
+    public async Task UpdateInstructorAsync(Guid id, UpdateInstructorDto dto)
+    {
+        var instructor = await _instructorRepository.GetByIdWithCoursesAsync(id);
+        if (instructor == null) throw new KeyNotFoundException("Instructor not found.");
+
+        // Regla Crítica: No se puede modificar un instructor si está en un curso publicado
+        if (instructor.Courses.Any(c => c.IsPublished))
+        {
+            throw new InvalidOperationException("Cannot update an instructor who is assigned to a published course.");
+        }
+        
+        _mapper.Map(dto, instructor);
+        await _instructorRepository.UpdateAsync(instructor);
+    }
+
     public async Task DeleteInstructorAsync(Guid id)
     {
         var instructor = await _instructorRepository.GetByIdWithCoursesAsync(id);
         if (instructor == null) throw new KeyNotFoundException("Instructor not found.");
 
+        // Regla Crítica: No se puede eliminar un instructor si está en un curso publicado
         if (instructor.Courses.Any(c => c.IsPublished))
-            throw new InvalidOperationException("Cannot delete an instructor assigned to a published course.");
+        {
+            throw new InvalidOperationException("Cannot delete an instructor who is assigned to a published course.");
+        }
         
         await _instructorRepository.DeleteAsync(instructor);
     }
@@ -42,13 +60,4 @@ public class InstructorService
 
     public async Task<IEnumerable<Instructor>> GetAllInstructorsAsync() => 
         await _instructorRepository.GetAllAsync();
-
-    public async Task UpdateInstructorAsync(Guid id, UpdateInstructorDto dto)
-    {
-        var instructor = await _instructorRepository.GetByIdAsync(id);
-        if (instructor == null) throw new KeyNotFoundException("Instructor not found.");
-        
-        _mapper.Map(dto, instructor);
-        await _instructorRepository.UpdateAsync(instructor);
-    }
 }

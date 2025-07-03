@@ -7,7 +7,11 @@ public class Lesson
     public Guid ModuleId { get; set; }
     public Module Module { get; set; } = null!;
 
-    private Lesson() { }
+    private Lesson() 
+    { 
+        // Solución a la advertencia
+        Title = null!;
+    }
 
     public Lesson(string title)
     {

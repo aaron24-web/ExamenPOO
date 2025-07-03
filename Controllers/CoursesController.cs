@@ -1,8 +1,8 @@
 using EducationalPlatformApi.Core.DTOs;
-using EducationalPlatformApi.Infrastructure.Repositories;
 using EducationalPlatformApi.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using EducationalPlatformApi.Infrastructure.Repositories;
 
 namespace EducationalPlatformApi.Controllers;
 
@@ -64,7 +64,8 @@ public class CoursesController : ControllerBase
         catch (KeyNotFoundException) { return NotFound(); }
         catch (InvalidOperationException ex) { return BadRequest(new { message = ex.Message }); }
     }
-    
+
+    // Esta es la sección que causaba el error y ahora funcionará
     [HttpDelete("{courseId}/instructors/{instructorId}")]
     public async Task<IActionResult> RemoveInstructorFromCourse(Guid courseId, Guid instructorId)
     {

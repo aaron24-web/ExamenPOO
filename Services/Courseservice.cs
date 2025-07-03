@@ -8,39 +8,34 @@ namespace EducationalPlatformApi.Services;
 public class CourseService
 {
     private readonly CourseRepository _courseRepository;
-    private readonly ModuleRepository _moduleRepository;
-    private readonly LessonRepository _lessonRepository;
     private readonly InstructorRepository _instructorRepository;
     private readonly IMapper _mapper;
 
     public CourseService(
         CourseRepository courseRepository,
-        ModuleRepository moduleRepository,
-        LessonRepository lessonRepository,
         InstructorRepository instructorRepository,
         IMapper mapper)
     {
         _courseRepository = courseRepository;
-        _moduleRepository = moduleRepository;
-        _lessonRepository = lessonRepository;
         _instructorRepository = instructorRepository;
         _mapper = mapper;
     }
 
     public async Task<Course> CreateCourseAsync(CreateCourseDto dto)
     {
-        var course = _mapper.Map<Course>(dto);
+        var course = new Course(dto.Title, dto.Description);
 
         if (dto.InstructorIds.Any())
         {
             var instructors = await _instructorRepository.GetByIdsAsync(dto.InstructorIds);
             if (instructors.Count != dto.InstructorIds.Count)
-            {
                 throw new KeyNotFoundException("One or more instructors were not found.");
+            
+            foreach (var instructor in instructors)
+            {
+                course.AddInstructor(instructor);
             }
-            course.Instructors.AddRange(instructors);
         }
-
         await _courseRepository.AddAsync(course);
         return course;
     }
@@ -49,10 +44,15 @@ public class CourseService
     {
         var course = await _courseRepository.GetByIdAsync(courseId);
         if (course == null) throw new KeyNotFoundException("Course not found.");
-
-        var module = _mapper.Map<Module>(dto);
-        course.AddModule(module);
-
+        course.AddModule(dto.Title);
+        await _courseRepository.UpdateAsync(course);
+    }
+    
+    public async Task AddLessonToModuleAsync(Guid courseId, Guid moduleId, CreateLessonDto dto)
+    {
+        var course = await _courseRepository.GetByIdAsync(courseId);
+        if (course == null) throw new KeyNotFoundException("Course not found.");
+        course.AddLessonToModule(moduleId, dto.Title);
         await _courseRepository.UpdateAsync(course);
     }
 
@@ -60,40 +60,23 @@ public class CourseService
     {
         var course = await _courseRepository.GetByIdAsync(courseId);
         if (course == null) throw new KeyNotFoundException("Course not found.");
-
         course.Publish();
         await _courseRepository.UpdateAsync(course);
     }
     
+    // --- MÉTODO CORREGIDO ---
+    // Se añade este método de nuevo para que el controlador funcione.
     public async Task RemoveInstructorFromCourseAsync(Guid courseId, Guid instructorId)
     {
         var course = await _courseRepository.GetByIdAsync(courseId);
-        if (course == null)
-            throw new KeyNotFoundException("Course not found.");
+        if (course == null) throw new KeyNotFoundException("Course not found.");
 
-        if (course.IsPublished)
-            throw new InvalidOperationException("Cannot remove an instructor from a published course.");
+        var instructor = await _instructorRepository.GetByIdAsync(instructorId);
+        if (instructor == null) throw new KeyNotFoundException("Instructor not found.");
 
-        var instructor = course.Instructors.FirstOrDefault(i => i.Id == instructorId);
-        if (instructor == null)
-            throw new KeyNotFoundException("Instructor is not assigned to this course.");
+        // La lógica de negocio se delega a la entidad Course
+        course.RemoveInstructor(instructor);
 
-        course.Instructors.Remove(instructor);
         await _courseRepository.UpdateAsync(course);
-    }
-
-    public async Task AddLessonToModuleAsync(Guid moduleId, CreateLessonDto dto)
-    {
-        var module = await _moduleRepository.GetByIdAsync(moduleId);
-        if (module == null) throw new KeyNotFoundException("Module not found.");
-
-        var course = await _courseRepository.GetByIdAsync(module.CourseId);
-        if (course == null || course.IsPublished)
-            throw new InvalidOperationException("Cannot add lessons to a module in a published course.");
-
-        var lesson = _mapper.Map<Lesson>(dto);
-        lesson.ModuleId = moduleId;
-
-        await _lessonRepository.AddAsync(lesson);
     }
 }

@@ -54,6 +54,7 @@
 /Users/aarontun/Codes/C#/Examenv2/EducationalPlatformApi/obj/Debug/net9.0/EducationalPlatformApi.pdb
 /Users/aarontun/Codes/C#/Examenv2/EducationalPlatformApi/obj/Debug/net9.0/EducationalPlatformApi.genruntimeconfig.cache
 /Users/aarontun/Codes/C#/Examenv2/EducationalPlatformApi/obj/Debug/net9.0/ref/EducationalPlatformApi.dll
+<<<<<<< HEAD
 C:\Users\farid\Documents\materias\poo\Parcial2\ExamenPOO\obj\Debug\net9.0\EducationalPlatformApi.csproj.AssemblyReference.cache
 C:\Users\farid\Documents\materias\poo\Parcial2\ExamenPOO\obj\Debug\net9.0\EducationalPlatformApi.GeneratedMSBuildEditorConfig.editorconfig
 C:\Users\farid\Documents\materias\poo\Parcial2\ExamenPOO\obj\Debug\net9.0\EducationalPlatformApi.AssemblyInfoInputs.cache
@@ -112,3 +113,6 @@ C:\Users\farid\Documents\materias\poo\Parcial2\ExamenPOO\obj\Debug\net9.0\static
 C:\Users\farid\Documents\materias\poo\Parcial2\ExamenPOO\obj\Debug\net9.0\Educatio.6D1B9ECC.Up2Date
 C:\Users\farid\Documents\materias\poo\Parcial2\ExamenPOO\obj\Debug\net9.0\EducationalPlatformApi.genruntimeconfig.cache
 C:\Users\farid\Documents\materias\poo\Parcial2\ExamenPOO\obj\Debug\net9.0\ref\EducationalPlatformApi.dll
+=======
+/Users/aarontun/Codes/C#/Examenv2/EducationalPlatformApi/obj/Debug/net9.0/EducationalPlatformApi.sourcelink.json
+>>>>>>> e4bcd49c469c88541c03a3e0b1a11e3a37af4a21

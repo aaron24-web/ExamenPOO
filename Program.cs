@@ -17,22 +17,18 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: myAllowSpecificOrigins, policy =>
     {
-        // En producción, es mejor especificar los dominios permitidos.
-        // Para desarrollo, puedes usar WithOrigins("http://localhost:3000") o similar.
         policy.WithOrigins("187.155.101.200") 
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
 });
 
-// --- 2. Inyección de Dependencias (Tus servicios y repositorios) ---
+// --- 2. Inyección de Dependencias ---
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseInMemoryDatabase("EducationalPlatformDb"));
 
-// Registra AutoMapper buscando perfiles en el ensamblado actual
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 
-// Registra tus repositorios y servicios para que puedan ser inyectados
 builder.Services.AddScoped<InstructorRepository>();
 builder.Services.AddScoped<CourseRepository>();
 builder.Services.AddScoped<ModuleRepository>();
@@ -64,7 +60,6 @@ builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo { Title = "Educational Platform API", Version = "v1" });
     
-    // Define el esquema de seguridad "Bearer" para la autorización
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         In = ParameterLocation.Header,
@@ -73,8 +68,7 @@ builder.Services.AddSwaggerGen(options =>
         Type = SecuritySchemeType.ApiKey,
         Scheme = "Bearer"
     });
-
-    // Hace que todos los endpoints requieran el token en la UI de Swagger
+    
     options.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
@@ -91,7 +85,6 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
-
 var app = builder.Build();
 
 // --- 5. Configuración del Pipeline de Peticiones HTTP ---
@@ -102,13 +95,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
-// Aplica la política de CORS que definiste
 app.UseCors(myAllowSpecificOrigins);
-
-// El orden es crucial: primero se autentica y luego se autoriza.
 app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapControllers();
 app.Run();

@@ -10,20 +10,20 @@ public class CourseService
     private readonly CourseRepository _courseRepository;
     private readonly ModuleRepository _moduleRepository;
     private readonly LessonRepository _lessonRepository;
-    private readonly InstructorRepository _instructorRepository; // Añadir
+    private readonly InstructorRepository _instructorRepository;
     private readonly IMapper _mapper;
 
     public CourseService(
         CourseRepository courseRepository,
         ModuleRepository moduleRepository,
         LessonRepository lessonRepository,
-        InstructorRepository instructorRepository, // Añadir
+        InstructorRepository instructorRepository,
         IMapper mapper)
     {
         _courseRepository = courseRepository;
         _moduleRepository = moduleRepository;
         _lessonRepository = lessonRepository;
-        _instructorRepository = instructorRepository; // Añadir
+        _instructorRepository = instructorRepository;
         _mapper = mapper;
     }
 

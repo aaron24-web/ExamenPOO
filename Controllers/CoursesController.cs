@@ -1,5 +1,5 @@
 using EducationalPlatformApi.Core.DTOs;
-using EducationalPlatformApi.Infrastructure.Repositories; // Necesario para el GetCourseById
+using EducationalPlatformApi.Infrastructure.Repositories;
 using EducationalPlatformApi.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -12,7 +12,7 @@ namespace EducationalPlatformApi.Controllers;
 public class CoursesController : ControllerBase
 {
     private readonly CourseService _courseService;
-    private readonly CourseRepository _courseRepository; // Inyectar para GetById
+    private readonly CourseRepository _courseRepository;
 
     public CoursesController(CourseService courseService, CourseRepository courseRepository)
     {

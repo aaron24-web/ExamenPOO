@@ -15,19 +15,19 @@ public class InstructorRepository
         await _context.SaveChangesAsync();
     }
 
-    public async Task<Instructor?> GetByNameAsync(string name) => 
+    public async Task<Instructor?> GetByNameAsync(string name) =>
         await _context.Instructors.FirstOrDefaultAsync(i => i.Name.ToLower() == name.ToLower());
 
-    public async Task<Instructor?> GetByIdAsync(Guid id) => 
+    public async Task<Instructor?> GetByIdAsync(Guid id) =>
         await _context.Instructors.FindAsync(id);
 
-    public async Task<Instructor?> GetByIdWithCoursesAsync(Guid id) => 
+    public async Task<Instructor?> GetByIdWithCoursesAsync(Guid id) =>
         await _context.Instructors.Include(i => i.Courses).FirstOrDefaultAsync(i => i.Id == id);
-    
+
     public async Task<List<Instructor>> GetByIdsAsync(List<Guid> ids) =>
         await _context.Instructors.Where(i => ids.Contains(i.Id)).ToListAsync();
 
-    public async Task<IEnumerable<Instructor>> GetAllAsync() => 
+    public async Task<IEnumerable<Instructor>> GetAllAsync() =>
         await _context.Instructors.ToListAsync();
 
     public async Task UpdateAsync(Instructor instructor)

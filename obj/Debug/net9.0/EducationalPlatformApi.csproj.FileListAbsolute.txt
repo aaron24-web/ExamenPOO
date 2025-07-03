@@ -54,3 +54,4 @@
 /Users/aarontun/Codes/C#/Examenv2/EducationalPlatformApi/obj/Debug/net9.0/EducationalPlatformApi.pdb
 /Users/aarontun/Codes/C#/Examenv2/EducationalPlatformApi/obj/Debug/net9.0/EducationalPlatformApi.genruntimeconfig.cache
 /Users/aarontun/Codes/C#/Examenv2/EducationalPlatformApi/obj/Debug/net9.0/ref/EducationalPlatformApi.dll
+/Users/aarontun/Codes/C#/Examenv2/EducationalPlatformApi/obj/Debug/net9.0/EducationalPlatformApi.sourcelink.json

@@ -1,11 +1,13 @@
 using EducationalPlatformApi.Core.DTOs;
 using EducationalPlatformApi.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace EducationalPlatformApi.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class InstructorsController : ControllerBase
 {
     private readonly InstructorService _instructorService;

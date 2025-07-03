@@ -1,41 +1,112 @@
 using EducationalPlatformApi.Infrastructure.Data;
+using Microsoft.AspNetCore.Authorization;
 using EducationalPlatformApi.Infrastructure.Repositories;
 using EducationalPlatformApi.Mappings;
 using EducationalPlatformApi.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using System.Text;
+
+// CORRECCIÓN: Se eliminó la línea "namespace EducationalPlatformApi.Controllers;"
+// El código de configuración de la aplicación (instrucciones de nivel superior)
+// no puede estar dentro de una declaración de namespace.
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 1. Añadir servicios al contenedor.
+// --- 1. Configuración de CORS ---
+var myAllowSpecificOrigins = "_myAllowSpecificOrigins";
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: myAllowSpecificOrigins, policy =>
+    {
+        // Aquí defines qué orígenes pueden acceder a tu API.
+        // Para desarrollo, puedes usar "*", pero en producción especifica los dominios.
+        policy.WithOrigins("187.155.101.200") 
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
+// --- 2. Inyección de Dependencias (Tus servicios y repositorios) ---
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseInMemoryDatabase("EducationalPlatformDb"));
 
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 
-// Repositorios
 builder.Services.AddScoped<InstructorRepository>();
 builder.Services.AddScoped<CourseRepository>();
 builder.Services.AddScoped<ModuleRepository>();
 builder.Services.AddScoped<LessonRepository>();
-
-// Servicios
-builder.Services.AddScoped<InstructorService>();
 builder.Services.AddScoped<CourseService>();
+builder.Services.AddScoped<InstructorService>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(); // Este necesita Swashbuckle.AspNetCore
+
+// --- 3. Configuración de Autenticación JWT ---
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
+        };
+    });
+
+// --- 4. Configuración de Swagger para usar JWT ---
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new OpenApiInfo { Title = "Educational Platform API", Version = "v1" });
+    // Define el esquema de seguridad "Bearer"
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        In = ParameterLocation.Header,
+        Description = "Por favor, introduce 'Bearer' seguido de un espacio y el token",
+        Name = "Authorization",
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer"
+    });
+    // Hace que todos los endpoints requieran el token
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
+
 
 var app = builder.Build();
 
-// 2. Configurar el pipeline de peticiones.
+// --- 5. Configuración del Pipeline de Peticiones ---
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger(); // Este necesita Swashbuckle.AspNetCore
-    app.UseSwaggerUI(); // Este necesita Swashbuckle.AspNetCore
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors(myAllowSpecificOrigins); // Aplicar la política de CORS
+
+app.UseAuthentication(); // <-- MUY IMPORTANTE: Va ANTES de UseAuthorization
 app.UseAuthorization();
+
 app.MapControllers();
 app.Run();

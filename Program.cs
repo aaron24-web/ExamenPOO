@@ -9,10 +9,6 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 
-// CORRECCIÓN: Se eliminó la línea "namespace EducationalPlatformApi.Controllers;"
-// El código de configuración de la aplicación (instrucciones de nivel superior)
-// no puede estar dentro de una declaración de namespace.
-
 var builder = WebApplication.CreateBuilder(args);
 
 // --- 1. Configuración de CORS ---
@@ -21,8 +17,8 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: myAllowSpecificOrigins, policy =>
     {
-        // Aquí defines qué orígenes pueden acceder a tu API.
-        // Para desarrollo, puedes usar "*", pero en producción especifica los dominios.
+        // En producción, es mejor especificar los dominios permitidos.
+        // Para desarrollo, puedes usar WithOrigins("http://localhost:3000") o similar.
         policy.WithOrigins("187.155.101.200") 
               .AllowAnyHeader()
               .AllowAnyMethod();
@@ -33,8 +29,10 @@ builder.Services.AddCors(options =>
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseInMemoryDatabase("EducationalPlatformDb"));
 
+// Registra AutoMapper buscando perfiles en el ensamblado actual
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 
+// Registra tus repositorios y servicios para que puedan ser inyectados
 builder.Services.AddScoped<InstructorRepository>();
 builder.Services.AddScoped<CourseRepository>();
 builder.Services.AddScoped<ModuleRepository>();
@@ -65,7 +63,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo { Title = "Educational Platform API", Version = "v1" });
-    // Define el esquema de seguridad "Bearer"
+    
+    // Define el esquema de seguridad "Bearer" para la autorización
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         In = ParameterLocation.Header,
@@ -74,7 +73,8 @@ builder.Services.AddSwaggerGen(options =>
         Type = SecuritySchemeType.ApiKey,
         Scheme = "Bearer"
     });
-    // Hace que todos los endpoints requieran el token
+
+    // Hace que todos los endpoints requieran el token en la UI de Swagger
     options.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
@@ -94,7 +94,7 @@ builder.Services.AddSwaggerGen(options =>
 
 var app = builder.Build();
 
-// --- 5. Configuración del Pipeline de Peticiones ---
+// --- 5. Configuración del Pipeline de Peticiones HTTP ---
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -103,9 +103,11 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseCors(myAllowSpecificOrigins); // Aplicar la política de CORS
+// Aplica la política de CORS que definiste
+app.UseCors(myAllowSpecificOrigins);
 
-app.UseAuthentication(); // <-- MUY IMPORTANTE: Va ANTES de UseAuthorization
+// El orden es crucial: primero se autentica y luego se autoriza.
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

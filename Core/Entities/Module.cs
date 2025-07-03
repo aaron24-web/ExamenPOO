@@ -12,7 +12,6 @@ public class Module
     
     private Module() 
     {
-        // Solución a la advertencia
         Title = null!;
     }
 
@@ -21,9 +20,5 @@ public class Module
         Title = title;
     }
     
-    internal void AddLesson(string lessonTitle)
-    {
-        var lesson = new Lesson(lessonTitle) { ModuleId = this.Id };
-        _lessons.Add(lesson);
-    }
+    // El método "internal void AddLesson(string lessonTitle)" puede ser eliminado.
 }

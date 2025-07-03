@@ -18,12 +18,15 @@ public class CourseRepository
     public async Task<Course?> GetByIdAsync(Guid id) =>
         await _context.Courses
             .Include(c => c.Modules)
+            .ThenInclude(m => m.Lessons)
             .Include(c => c.Instructors)
             .FirstOrDefaultAsync(c => c.Id == id);
 
     public async Task UpdateAsync(Course course)
     {
-        _context.Courses.Update(course);
+        // Al haber cargado el curso desde el contexto, EF ya lo está rastreando.
+        // Solo necesitamos guardar los cambios que el rastreador detecte.
+        // Esto insertará, actualizará o eliminará entidades hijas según sea necesario.
         await _context.SaveChangesAsync();
     }
 }

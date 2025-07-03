@@ -15,7 +15,6 @@ public class Course
 
     private Course() 
     {
-        // Solución a las advertencias
         Title = null!;
         Description = null!;
     }
@@ -53,21 +52,15 @@ public class Course
         }
     }
 
-    // --- Métodos de modificación de Hijos (Módulos y Lecciones) ---
+    // --- Métodos de modificación de Hijos ---
     public void AddModule(string moduleTitle)
     {
         if (IsPublished) throw new InvalidOperationException("Cannot add modules to a published course.");
-        var module = new Module(moduleTitle) { CourseId = this.Id };
+        var module = new Module(moduleTitle) { CourseId = this.Id, Course = this };
         _modules.Add(module);
     }
-
-    public void AddLessonToModule(Guid moduleId, string lessonTitle)
-    {
-        if (IsPublished) throw new InvalidOperationException("Cannot add lessons to a published course.");
-        var module = _modules.FirstOrDefault(m => m.Id == moduleId);
-        if (module == null) throw new KeyNotFoundException("Module not found in this course.");
-        module.AddLesson(lessonTitle);
-    }
+    
+    // El método AddLessonToModule se ha eliminado de aquí para corregir el error.
     
     // --- Lógica de Publicación ---
     public void Publish()

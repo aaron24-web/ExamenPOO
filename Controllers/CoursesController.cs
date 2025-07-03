@@ -26,6 +26,7 @@ public class CoursesController : ControllerBase
         try
         {
             var course = await _courseService.CreateCourseAsync(dto);
+            // Esto está bien porque apunta a un GET
             return CreatedAtAction(nameof(GetCourseById), new { courseId = course.Id }, course);
         }
         catch (KeyNotFoundException ex)
@@ -41,13 +42,17 @@ public class CoursesController : ControllerBase
         return course == null ? NotFound() : Ok(course);
     }
 
+    // --- MÉTODO CORREGIDO ---
     [HttpPost("{courseId}/modules")]
     public async Task<IActionResult> AddModule(Guid courseId, CreateModuleDto dto)
     {
         try
         {
-            await _courseService.AddModuleToCourseAsync(courseId, dto);
-            return Ok();
+            var newModule = await _courseService.AddModuleToCourseAsync(courseId, dto);
+            
+            // Simplemente devolvemos el nuevo módulo con un código 200 OK.
+            // Esto es simple, efectivo y te da el ID que necesitas para el siguiente paso.
+            return Ok(newModule);
         }
         catch (KeyNotFoundException) { return NotFound(); }
         catch (InvalidOperationException ex) { return BadRequest(new { message = ex.Message }); }
@@ -64,8 +69,7 @@ public class CoursesController : ControllerBase
         catch (KeyNotFoundException) { return NotFound(); }
         catch (InvalidOperationException ex) { return BadRequest(new { message = ex.Message }); }
     }
-
-    // Esta es la sección que causaba el error y ahora funcionará
+    
     [HttpDelete("{courseId}/instructors/{instructorId}")]
     public async Task<IActionResult> RemoveInstructorFromCourse(Guid courseId, Guid instructorId)
     {

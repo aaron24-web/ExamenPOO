@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using System.Text.Json.Serialization; // <-- 1. AÑADE ESTE USING
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,7 +37,13 @@ builder.Services.AddScoped<LessonRepository>();
 builder.Services.AddScoped<CourseService>();
 builder.Services.AddScoped<InstructorService>();
 
-builder.Services.AddControllers();
+// --- 2. MODIFICA ESTA LÍNEA ---
+// Se añade la configuración para manejar ciclos en las referencias de objetos
+builder.Services.AddControllers().AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
+});
+
 builder.Services.AddEndpointsApiExplorer();
 
 // --- 3. Configuración de Autenticación JWT ---
